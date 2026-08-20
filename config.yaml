@@ -1,0 +1,78 @@
+# Event Radar config — edit this, not the code.
+
+home:
+  city_names: [gurugram, gurgaon, delhi, new delhi, noida, faridabad, ghaziabad, greater noida, ncr]
+  luma_city_slugs: [delhi]          # lu.ma/delhi
+  meetup_lat: 28.4595
+  meetup_lon: 77.0266
+  meetup_radius_miles: 40
+
+india:
+  luma_city_slugs: [bangalore, mumbai, hyderabad, pune, chennai, kolkata, ahmedabad, goa]
+  eventbrite_places:                # eventbrite URL slugs
+    - india--bengaluru
+    - india--mumbai
+    - india--new-delhi
+    - india--hyderabad
+    - india--pune
+
+# What we type into the search boxes on sites that need a query (Meetup).
+# Keep this short — every term is a separate page fetch.
+search_terms: [artificial intelligence, machine learning, deep learning, hardware,
+               robotics, startup founders, neurotech, medical devices]
+
+# Relevance scoring. Weight = points added when the phrase appears
+# in title/description. Anything scoring below min_score is dropped.
+keywords:
+  core:            # weight 5 — your actual work
+    weight: 5
+    terms: [bci, brain computer interface, brain-computer, neurotech, neurotechnology,
+            eeg, emg, eog, fnirs, neural interface, neuromodulation, neuroscience,
+            biosignal, biosensing, wearable, medical device, medtech, digital health,
+            electrophysiology, ppg, bioelectronics, implant, prosthetic, neuralink]
+  strong:          # weight 3
+    weight: 3
+    terms: [hardware, embedded, silicon, semiconductor, robotics, sensors, rf, radar,
+            firmware, pcb, fpga, edge ai, chip, mems, photonics, signal processing,
+            deep learning, machine learning, foundation model, llm, transformer,
+            computer vision, speech, multimodal, ml systems, mlops, pytorch, cuda]
+  network:         # weight 3 — founder / investor rooms
+    weight: 3
+    terms: [founder, founders, startup, yc, y combinator, demo day, pitch, vc,
+            venture, angel, accelerator, incubator, seed round, hackathon, builders]
+  weak:            # weight 1
+    weight: 1
+    terms: [ai, artificial intelligence, research, engineering, science, workshop,
+            conference, summit, meetup, symposium]
+
+# Kill list — instant drop regardless of score.
+blocklist: [astrology, tarot, speed dating, mlm, network marketing, crypto pump,
+            forex, weight loss challenge, nightlife, bollywood night, comedy open mic,
+            yoga retreat, "digital marketing masterclass", dropshipping]
+
+thresholds:
+  home: 4          # local stuff — low bar, you can just show up
+  india: 7         # travel within India — needs to be worth a flight
+  global: 12       # only genuinely major
+
+# Global events are curated, not scraped. Add/remove freely.
+global_watchlist:
+  - {name: NeurIPS, url: https://neurips.cc, note: ML, month: Dec}
+  - {name: ICML, url: https://icml.cc, note: ML, month: Jul}
+  - {name: ICLR, url: https://iclr.cc, note: ML, month: Apr}
+  - {name: CVPR, url: https://cvpr.thecvf.com, note: Vision, month: Jun}
+  - {name: IEEE EMBC, url: https://embc.embs.org, note: Biomedical engineering, month: Jul}
+  - {name: BCI Society Meeting, url: https://bcisociety.org, note: BCI, month: Jun}
+  - {name: Society for Neuroscience (SfN), url: https://www.sfn.org, note: Neuroscience, month: Nov}
+  - {name: IEEE NER (Neural Engineering), url: https://neuro.embs.org, note: Neural engineering, month: May}
+  - {name: CES, url: https://www.ces.tech, note: Consumer hardware, month: Jan}
+  - {name: Embedded World, url: https://www.embedded-world.de, note: Embedded hardware, month: Mar}
+  - {name: MWC Barcelona, url: https://www.mwcbarcelona.com, note: Wireless/devices, month: Mar}
+  - {name: Interspeech, url: https://www.interspeech2026.org, note: Speech, month: Sep}
+  - {name: SLEEP (APSS), url: https://www.sleepmeeting.org, note: Sleep/dream science, month: Jun}
+  - {name: Hot Chips, url: https://hotchips.org, note: Silicon, month: Aug}
+
+output:
+  site_dir: site
+  digest_days: 60        # only show events starting within N days
+  max_per_section: 60
