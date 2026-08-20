@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "30 1 * * *"      # ~07:00 IST daily (GitHub cron can drift 10-30 min)
   workflow_dispatch:           # lets you run it by hand from the Actions tab
+  push:
+    branches: [main]           # editing config.yaml rebuilds the page right away
+    paths-ignore:
+      - events.db              # the scan job commits the db back; without this
+      - README.md              # that commit would trigger another scan, forever
 
 permissions:
   contents: write
@@ -41,7 +46,9 @@ jobs:
           git config user.name  "event-radar"
           git config user.email "actions@github.com"
           git add -f events.db
-          git diff --staged --quiet || git commit -m "radar: $(date -u +%Y-%m-%d) scan"
+          # [skip ci] belts-and-braces with paths-ignore above: this commit must
+          # never start another run of this workflow.
+          git diff --staged --quiet || git commit -m "radar: $(date -u +%Y-%m-%d) scan [skip ci]"
           git push
 
       - uses: actions/upload-pages-artifact@v3
