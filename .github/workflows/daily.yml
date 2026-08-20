@@ -49,32 +49,48 @@ jobs:
       # Committing the database keeps "new since last run" accurate and counts
       # as repo activity, so GitHub never auto-disables the daily schedule.
       #
-      # This races with your own pushes: a commit landing on main while a scan
-      # is running leaves this job's checkout behind the remote, and the push is
-      # rejected. So rebase onto whatever arrived and retry. continue-on-error
-      # means that even if it still can't push, the page has already deployed.
+      # This races with your own pushes: a commit landing on main while a scan is
+      # running leaves this job's checkout behind the remote, and the push is
+      # rejected. Rebasing would be the usual answer, but events.db is a binary
+      # file -- a rebase against another run's version conflicts and there's no
+      # sane way to resolve it unattended.
+      #
+      # Instead: move HEAD *and the index* to whatever is on the remote now,
+      # leaving the working tree alone so our freshly scanned events.db
+      # survives, then stage only that one path. Ours is the newest scan, so
+      # "ours wins" is always the correct resolution for the database, and the
+      # push is a fast-forward.
+      #
+      # --mixed rather than --soft matters. --soft leaves the index holding the
+      # tree we checked out, so a source commit that landed mid-run would be
+      # staged at its *old* content and the commit below would revert it.
+      #
+      # continue-on-error means that even in the worst case the page has already
+      # been published by the step above.
       - name: Save the event database
         continue-on-error: true
         run: |
           git config user.name  "event-radar"
           git config user.email "actions@github.com"
-          git add -f events.db
-          if git diff --staged --quiet; then
-            echo "database unchanged, nothing to commit"
-            exit 0
-          fi
-          # [skip ci] pairs with paths-ignore above: this commit must never
-          # start another run of this workflow.
-          git commit -m "radar: $(date -u +%Y-%m-%d) scan [skip ci]"
           for attempt in 1 2 3; do
-            if git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && git push; then
+            git fetch origin "${GITHUB_REF_NAME}"
+            git reset --mixed "origin/${GITHUB_REF_NAME}"
+            git add -f events.db
+            if git diff --staged --quiet; then
+              echo "database unchanged, nothing to commit"
+              exit 0
+            fi
+            # [skip ci] pairs with paths-ignore above: this commit must never
+            # start another run of this workflow.
+            git commit -m "radar: $(date -u +%Y-%m-%d) scan [skip ci]"
+            if git push; then
               echo "database saved on attempt ${attempt}"
               exit 0
             fi
-            echo "push attempt ${attempt} failed, retrying"
+            echo "push attempt ${attempt} failed (something landed mid-run), retrying"
             sleep 5
           done
-          echo "::warning::could not save events.db (a push probably landed mid-run); the page deployed regardless"
+          echo "::warning::could not save events.db; the page deployed regardless"
 
   publish:
     needs: scan
