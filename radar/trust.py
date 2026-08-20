@@ -136,6 +136,13 @@ def _shouty(title: str) -> bool:
 
 def check(event: Event) -> Tuple[bool, str]:
     """Returns (keep, reason_if_dropped). The reason is what the run log prints."""
+    # Curated entries were verified by hand when they were typed into
+    # config.yaml, which is a stronger check than any allowlist. Their hosts are
+    # conference sites -- semiconindia.org, medicalfair-india.com -- that would
+    # otherwise be rejected as unknown.
+    if event.source == "curated":
+        return (True, "") if event.start else (False, "missing date")
+
     host = host_of(event.url)
     t = tier(event.url)
     if t is None:
@@ -168,5 +175,7 @@ def check(event: Event) -> Tuple[bool, str]:
 
 def base_trust(event: Event) -> int:
     """Starting trust score. Cross-posting adds to this during dedupe."""
+    if event.source == "curated":
+        return 3
     t = tier(event.url)
     return {1: 2, 2: 1}.get(t or 0, 0)

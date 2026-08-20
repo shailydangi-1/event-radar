@@ -288,7 +288,7 @@ TEMPLATE = r"""<!doctype html>
   <div id="list"></div>
 
   <section id="watch-sec">
-    <div class="sec-head"><h2>Global watchlist</h2><span>Curated by hand in config.yaml</span></div>
+    <div class="sec-head"><h2>Conference watchlist</h2><span>Recurring events with no date announced yet &middot; edit in config.yaml</span></div>
     <div class="watch" id="watch"></div>
   </section>
 

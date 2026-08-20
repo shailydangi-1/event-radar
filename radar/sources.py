@@ -631,6 +631,44 @@ def commudle() -> List[Event]:
     return _dedupe_local(jsonld_events(html, "commudle"))
 
 
+# ---------------------------------------------------------------------- curated
+
+
+def curated(entries: List[dict]) -> List[Event]:
+    """Hand-verified events from config.yaml.
+
+    The deep-tech conferences that matter most here are the least scrapable:
+    10times and embs.org block automated requests outright, and KonfHub, IIT
+    Delhi and NASSCOM ship no structured event data. Their dates are announced
+    a year ahead and barely move, so typing them in once a year beats
+    maintaining a scraper that breaks silently.
+    """
+    events: List[Event] = []
+    for entry in entries or []:
+        name, url = entry.get("name"), entry.get("url")
+        start = _date(str(entry.get("start"))) if entry.get("start") else None
+        if not name or not url or start is None:
+            log.warning("  curated entry skipped (needs name, url, start): %r", name or entry)
+            continue
+        events.append(
+            Event(
+                title=name,
+                url=url,
+                source="curated",
+                start=start,
+                end=_date(str(entry["end"])) if entry.get("end") else None,
+                venue=_clean(str(entry.get("venue") or ""), 160),
+                city=_clean(str(entry.get("city") or ""), 80),
+                country=str(entry.get("country") or "IN"),
+                # `topic` exists so the scorer can see what the event is about;
+                # a conference title alone rarely says.
+                description=_clean(str(entry.get("topic") or entry.get("note") or "")),
+                is_free=entry.get("free"),
+            )
+        )
+    return events
+
+
 # ----------------------------------------------------------------------- utils
 
 

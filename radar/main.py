@@ -71,6 +71,7 @@ def collect(cfg: dict) -> Tuple[List[Event], List[str], int]:
         jobs.append((f"allevents/{city}", lambda c=city: sources.allevents(c)))
 
     jobs.append(("devfolio", sources.devfolio))
+    jobs.append(("curated", lambda: sources.curated(cfg.get("curated_events") or [])))
     # Townscript and Commudle render their listings client-side and serve no
     # usable JSON-LD, so calling them only adds noise to the log. The fetchers
     # stay in sources.py for the day that changes.

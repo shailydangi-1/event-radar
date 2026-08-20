@@ -77,6 +77,13 @@ def relevance(event: Event, cfg: dict) -> Tuple[int, List[str], List[str]]:
     title_hay = f"{event.title} {event.venue}".lower()
     desc_hay = event.description.lower()
 
+    # Curated entries carry their subject in the `topic` field because a
+    # conference title is usually just a proper noun -- "SEMICON India 2026"
+    # says nothing on its own. That field is hand-written metadata, not the
+    # marketing copy the discount below exists to distrust, so it scores at
+    # full weight.
+    discount_description = event.source != "curated"
+
     total = 0
     matched_all: List[str] = []
 
@@ -89,7 +96,8 @@ def relevance(event: Event, cfg: dict) -> Tuple[int, List[str], List[str]]:
 
         total += weight * min(len(in_title), MATCHES_PER_BUCKET)
         if in_desc:
-            total += max(1, weight // 2) * min(len(in_desc), MATCHES_PER_BUCKET)
+            desc_weight = max(1, weight // 2) if discount_description else weight
+            total += desc_weight * min(len(in_desc), MATCHES_PER_BUCKET)
         matched_all.extend(in_title + in_desc)
 
     if event.is_free:

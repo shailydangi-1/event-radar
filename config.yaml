@@ -55,8 +55,60 @@ thresholds:
   india: 7         # travel within India — needs to be worth a flight
   global: 12       # only genuinely major
 
-# Global events are curated, not scraped. Add/remove freely.
+# Hand-verified events with known dates. These flow through scoring and regions
+# exactly like scraped ones, so they appear in the NCR/India sections when they
+# fall inside the digest window. Use this for the deep-tech conferences that
+# can't be scraped: the sites that list them either block bots (10times,
+# embs.org) or ship no machine-readable data (KonfHub, IIT Delhi, NASSCOM).
+#
+# Dates are announced a year out and rarely move. Check them each January.
+curated_events:
+  - name: SEMICON India 2026
+    url: https://www.semiconindia.org/
+    start: 2026-09-17
+    end: 2026-09-19
+    city: New Delhi
+    venue: Yashobhoomi (India International Convention & Expo Centre), Dwarka
+    topic: semiconductor silicon chip hardware fabrication electronics manufacturing MEMS packaging
+  - name: India Mobile Congress 2026
+    url: https://www.indiamobilecongress.com/
+    start: 2026-10-07
+    end: 2026-10-10
+    city: New Delhi
+    venue: Yashobhoomi (IICC), Dwarka
+    topic: wireless devices hardware telecom 6G edge AI sensors embedded semiconductor
+  - name: IANCON 2026 — Indian Academy of Neurology
+    url: https://www.ianindia.org/events_list
+    start: 2026-10-28
+    end: 2026-11-01
+    city: Jaipur
+    topic: neurology neuroscience neuromodulation clinical medical device electrophysiology
+  - name: Bengaluru Tech Summit 2026
+    url: https://www.bengalurutechsummit.com/
+    start: 2026-11-17
+    end: 2026-11-19
+    city: Bengaluru
+    topic: deep learning machine learning hardware semiconductor robotics startup founders medtech
+  - name: NSICON 2026 — Neurological Society of India
+    url: https://neurosocietyindia.com/conferences/
+    start: 2026-12-10
+    end: 2026-12-13
+    city: Ahmedabad
+    topic: neuroscience neurosurgery neural interface neuromodulation implant medical device
+  - name: Medical Fair India 2027
+    url: https://www.medicalfair-india.com/
+    start: 2027-03-13
+    end: 2027-03-15
+    city: New Delhi
+    venue: Bharat Mandapam (Pragati Maidan), Halls 4 & 5
+    topic: medical device medtech diagnostics wearable digital health implant bioelectronics
+
+# Recurring conferences whose next dates aren't announced yet, or that are too
+# far out to be worth a row. Rendered as plain cards. Add/remove freely.
 global_watchlist:
+  - {name: "IAN — Indian Academy of Neurosciences", url: http://neuroscienceacademy.org.in, note: "Neuroscience · India · 2026 was at NBRC Manesar, Gurugram", month: Aug}
+  - {name: India Medical Device (DoP + FICCI), url: https://www.indiamediexpo.in, note: "Medical devices · New Delhi", month: Aug}
+  - {name: India MedTech Expo, url: https://indiamedtechexpo.in, note: "Medical devices · India", month: Sep}
   - {name: NeurIPS, url: https://neurips.cc, note: ML, month: Dec}
   - {name: ICML, url: https://icml.cc, note: ML, month: Jul}
   - {name: ICLR, url: https://iclr.cc, note: ML, month: Apr}

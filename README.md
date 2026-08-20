@@ -97,7 +97,17 @@ Everything lives in `config.yaml`.
   India needs to justify a flight (7), global is 12. Too much noise in a
   section, raise its number by 2 and rerun with `--no-fetch` to see the effect.
 - **`blocklist`** — instant drop, no matter the score.
-- **`global_watchlist`** — edit by hand.
+- **`curated_events`** — hand-verified events with real dates. They flow through
+  scoring and regions like scraped ones and appear in the NCR/India sections
+  once they fall inside the digest window, so entries dated further out simply
+  surface later. This is where the deep-tech conferences live: the sites that
+  list them either block automated requests (10times, embs.org) or ship no
+  machine-readable data (KonfHub, IIT Delhi, NASSCOM), and their dates are
+  announced a year ahead and barely move. Each entry needs `name`, `url` and
+  `start`; `topic` is what the scorer reads, since a conference title is
+  usually just a proper noun. Worth a check each January.
+- **`global_watchlist`** — recurring conferences with no announced date yet.
+  Rendered as plain cards. Edit by hand.
 
 The bars beside each event are its relevance score. Skim the bars, not the list.
 
