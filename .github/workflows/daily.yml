@@ -39,21 +39,42 @@ jobs:
           DIGEST_TO: ${{ secrets.DIGEST_TO }}
         run: python -m radar.main
 
+      # Publishing comes first, deliberately. Saving the database is a
+      # convenience; getting the page out is the whole point, so nothing that
+      # happens below is allowed to stand between a good scan and a deploy.
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
       # Committing the database keeps "new since last run" accurate and counts
       # as repo activity, so GitHub never auto-disables the daily schedule.
+      #
+      # This races with your own pushes: a commit landing on main while a scan
+      # is running leaves this job's checkout behind the remote, and the push is
+      # rejected. So rebase onto whatever arrived and retry. continue-on-error
+      # means that even if it still can't push, the page has already deployed.
       - name: Save the event database
+        continue-on-error: true
         run: |
           git config user.name  "event-radar"
           git config user.email "actions@github.com"
           git add -f events.db
-          # [skip ci] belts-and-braces with paths-ignore above: this commit must
-          # never start another run of this workflow.
-          git diff --staged --quiet || git commit -m "radar: $(date -u +%Y-%m-%d) scan [skip ci]"
-          git push
-
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
+          if git diff --staged --quiet; then
+            echo "database unchanged, nothing to commit"
+            exit 0
+          fi
+          # [skip ci] pairs with paths-ignore above: this commit must never
+          # start another run of this workflow.
+          git commit -m "radar: $(date -u +%Y-%m-%d) scan [skip ci]"
+          for attempt in 1 2 3; do
+            if git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && git push; then
+              echo "database saved on attempt ${attempt}"
+              exit 0
+            fi
+            echo "push attempt ${attempt} failed, retrying"
+            sleep 5
+          done
+          echo "::warning::could not save events.db (a push probably landed mid-run); the page deployed regardless"
 
   publish:
     needs: scan
